@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5E224CD5-1778-4B7D-A21C-2A11EBD0630A}</ProjectGuid>
-    <RootNamespace>voronoi</RootNamespace>
+    <ProjectGuid>{472C4512-F5CE-4A08-B41B-1E0B44C6D187}</ProjectGuid>
+    <RootNamespace>Voronoi</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
