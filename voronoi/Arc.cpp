@@ -7,31 +7,31 @@
 using namespace std;
 using namespace voronoi;
 
-Arc::Arc(const shared_ptr<Arc> other) : site(other->site) {}
-Arc::Arc(const shared_ptr<Point> s, shared_ptr<Arc> l, shared_ptr<Arc> r) : site(s), left(l), right(r) {}
-shared_ptr<Arc> Arc::prev() const {
+Arc::Arc(const Arc& other) : site(other.site), left(nullptr), right(nullptr) {}
+Arc::Arc(const Point& s, Arc* l, Arc* r) : site(s), left(l), right(r) {}
+Arc* Arc::prev() const {
 	return left;
 }
-shared_ptr<Arc> Arc::next() const {
+Arc* Arc::next() const {
 	return right;
 }
-void Arc::connectLeft(shared_ptr<Arc> other) {
+void Arc::connectLeft(Arc* other) {
 	if (left) {
 		left->right = other;
 		other->left = left;
 	}
-	other->right = shared_from_this();
+	other->right = this;
 	left = other;
 }
-void Arc::connectRight(shared_ptr<Arc> other) {
+void Arc::connectRight(Arc* other) {
 	if (right) {
 		right->left = other;
 		other->right = right;
 	}
-	other->left = shared_from_this();
+	other->left = this;
 	right = other;
 }
 
-bool Arc::hasSameSiteAs(shared_ptr<Arc> other) {
-	return other->site == site;
+bool Arc::hasSameSiteAs(Arc* other) {
+	return true;
 }

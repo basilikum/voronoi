@@ -4,9 +4,11 @@
 #include <iostream>
 #include "PointSet.h"
 #include "Voronoi.h"
+#include "Arc.h"
 
 using namespace std;
-/*
+using namespace voronoi;
+
 Voronoi::Voronoi() : _set(PointSet()) {}
 Voronoi::Voronoi(int num) : _set(PointSet(num)) {}
 vector<Edge> Voronoi::compute(const PointSet& set) const {
@@ -68,26 +70,30 @@ public:
 };
 
 
-class Event {
-public:
+struct Event {
 	double y;
-	bool site;
-	Event(double _y) : y(_y), site(true) {}
-	Event(double _y, bool _s) : y(_y), site(_s) {}
+	Event(double _y) : y(_y) {}
+	virtual int type() const = 0;
 };
 
-class SiteEvent : public Event {
-private:
-	shared_ptr<Site> site;
+struct SiteEvent : public Event {
+	double x;
+	SiteEvent(double _y, double _x) : Event(_y), x(_x) {}
+	int type() const {
+		return 0;
+	}
 };
 
-class CircleEvent : public Event {
-private:
-	shared_ptr<BeachArc> arc;
-	Circle circle;
-public:
-	CircleEvent(double y, const Circle& c, shared_ptr<BeachArc> a) : Event(y, false), circle(c), arc(a) {}
+struct CircleEvent : public Event {
+	double cx;
+	double cy;
+	const Arc* arc;
+	CircleEvent(double _y, double _cx, double _cy, const Arc& _arc) : Event(_y), cx(_cx), cy(_cy), arc(&_arc) {}
+	int type() const {
+		return 1;
+	}
 };
+
 
 
 class EventList {
@@ -124,14 +130,6 @@ public:
 };
 
 
-class Voronoi {
-private:
-	BeachLine bl;
-	EventList el;
-public:
-
-};
-
 
 
 void get_center(double x1, double y1, double x2, double y2, double yt) {
@@ -166,49 +164,68 @@ void get_center(double x1, double y1, double x2, double y2, double yt) {
 }
 
 
+class Voronoi {
+private:
+	map<double, unique_ptr<Event>> events;
+	BeachLine beachLine;
+	void loop() {
+		for (const auto& it : events) {
+			if (it.second->type() == 0) {
+				auto evt = (const SiteEvent*)it.second.get();
+				handelSiteEvent(*evt);
+			}
+			else {
+				auto evt = (const CircleEvent*)it.second.get();
+				handelCircleEvent(*evt);
+			}
+		}
+	}
+	void handelCircleEvent(const CircleEvent& evt) {
+
+	}
+	void handelSiteEvent(const SiteEvent& evt) {
+		beachLine.addAt(evt.x);
+	}
+public:
+	Voronoi() {}
+	void create() {
+
+	}
+};
 
 class BeachLine {
 private:
-	shared_ptr<BeachArc> firstArc;
-	EventList el;
+	vector<unique_ptr<Arc>> arcs;
+
 public:
-	BeachLine() {}
-	void iterate() {
-		for (auto it = el.begin(); it != el.end(); it++) {
-			if (it->second->site) {
-				auto evt = static_pointer_cast<SiteEvent>(it->second);
-			}
-			else {
-				auto evt = static_pointer_cast<CircleEvent>(it->second);
-			}
-		}
+	BeachLine() : arcs(0) {
+		arcs.reserve(1000);
 	}
-	void split(shared_ptr<BeachArc> newArc, shared_ptr<BeachArc> leftArc) {
+	void addAt(int x) {
+		auto leftArc = arcs.at(0).get();
+		int leftIndex = 0;
 		auto rightRightArc = leftArc->right;
 		auto leftLeftArc = leftArc->left;
-		auto rightArc = make_shared<BeachArc>(leftArc);
+		auto rightArc = make_unique<Arc>(leftArc);
+		auto newArc = make_unique<Arc>(&site, leftArc, rightArc.get());
+		rightArc->left = newArc.get();
+		leftArc->right = newArc.get();
 		if (rightRightArc) {
-			rightRightArc->left = rightArc;
+			rightRightArc->left = rightArc.get();
 			rightArc->right = rightRightArc;
 		}
-		rightArc->left = newArc;
-		newArc->right = rightArc;
-		newArc->left = leftArc;
-		leftArc->right = newArc;
+		arcs.insert(arcs.begin() + leftIndex + 1, { move(newArc), move(rightArc) });
 	}
-	void remove(shared_ptr<BeachArc> arc) {
+	void remove(Arc* arc) {
 		auto leftArc = arc->left;
 		auto rightArc = arc->right;
-		if (leftArc && rightArc && leftArc->site == rightArc->site) {
+		if (leftArc && rightArc && leftArc->hasSameSiteAs(rightArc)) {
 			rightArc->right = nullptr;
 			rightArc->left = nullptr;
 			rightArc = rightArc->right;
 		}
 		if (leftArc) {
 			leftArc->right = rightArc;
-		}
-		else {
-			firstArc = rightArc;
 		}
 		if (rightArc) {
 			rightArc->left = leftArc;
@@ -217,7 +234,7 @@ public:
 		arc->left = nullptr;
 	}
 };
-
+/*
 
 class BeachLine {
 private:

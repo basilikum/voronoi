@@ -7,21 +7,21 @@
 using namespace std;
 
 namespace voronoi {
-	class Arc : public enable_shared_from_this<Arc> {
+	class Arc {
 	private:
-		shared_ptr<Point> site;
+		const Point& site;
 		double evtKey = -1;
 	public:
-		shared_ptr<Arc> left;
-		shared_ptr<Arc> right;
-		Arc(const shared_ptr<Arc> other);
-		Arc(const shared_ptr<Point> s, shared_ptr<Arc> l, shared_ptr<Arc> r);
-		shared_ptr<Arc> prev() const;
-		shared_ptr<Arc> next() const;
-		void connectLeft(shared_ptr<Arc> other);
-		void connectRight(shared_ptr<Arc> other);
+		Arc* left;
+		Arc* right;
+		Arc(const Arc& other);
+		Arc(const Point* s, Arc* l, Arc* r);
+		Arc* prev() const;
+		Arc* next() const;
+		void connectLeft(Arc* other);
+		void connectRight(Arc* other);
 		void setEvt(double key);
 		void unsetEvt();
-		bool hasSameSiteAs(shared_ptr<Arc> other);
+		bool hasSameSiteAs(Arc* other);
 	};
 }
