@@ -195,31 +195,9 @@ public:
 };
 
 int main() {
-	ItemList1 il1{};
-	ItemList2 il2{};
-	cout << "#######" << endl;
-	for (int i = 0; i < 1000000; i++) {
-		il1.add(i, i);
-	}
-	cout << "#######" << endl;
-	for (int i = 0; i < 1000000; i++) {
-		if (i % 2 == 0) {
-			il1.add(i, i / 2);
-		}
-		else {
-			int k = 1000000 - (i + 1);
-			il1.add(i, i / 2);
-		}
-	}
-	cout << "#######" << endl;
-	for (int i = 0; i < 5000000; i++) {
-		auto x = il1[5000];
-	}
-	cout << "#######" << endl;
-	for (int i = 0; i < 5000000; i++) {
-		auto x = il2[5000];
-	}
-	cout << "####### " << endl;
+	vector<unique_ptr<Item>> vec(0);
+	vec.reserve(100);
+	vec.emplace(vec.begin(), make_unique<Item>(0));
 
 	/*
 	double x1 = (double)rand() / RAND_MAX;

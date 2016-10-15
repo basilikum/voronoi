@@ -5,7 +5,7 @@
 #include "PointSet.h"
 #include "Voronoi.h"
 #include "Arc.h"
-
+/*
 using namespace std;
 using namespace voronoi;
 
@@ -77,8 +77,8 @@ struct Event {
 };
 
 struct SiteEvent : public Event {
-	double x;
-	SiteEvent(double _y, double _x) : Event(_y), x(_x) {}
+	const Site& site;
+	SiteEvent(double _y, const Site& __site) : Event(_y), site(__site) {}
 	int type() const {
 		return 0;
 	}
@@ -184,7 +184,7 @@ private:
 
 	}
 	void handelSiteEvent(const SiteEvent& evt) {
-		beachLine.addAt(evt.x);
+		beachLine.addAt(evt.site);
 	}
 public:
 	Voronoi() {}
@@ -201,13 +201,13 @@ public:
 	BeachLine() : arcs(0) {
 		arcs.reserve(1000);
 	}
-	void addAt(int x) {
+	Arc* addAt(const Site& site) {
 		auto leftArc = arcs.at(0).get();
 		int leftIndex = 0;
 		auto rightRightArc = leftArc->right;
 		auto leftLeftArc = leftArc->left;
 		auto rightArc = make_unique<Arc>(leftArc);
-		auto newArc = make_unique<Arc>(&site, leftArc, rightArc.get());
+		auto newArc = make_unique<Arc>(site, leftArc, rightArc.get());
 		rightArc->left = newArc.get();
 		leftArc->right = newArc.get();
 		if (rightRightArc) {
@@ -215,6 +215,7 @@ public:
 			rightArc->right = rightRightArc;
 		}
 		arcs.insert(arcs.begin() + leftIndex + 1, { move(newArc), move(rightArc) });
+		return newArc.get();
 	}
 	void remove(Arc* arc) {
 		auto leftArc = arc->left;

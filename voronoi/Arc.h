@@ -15,7 +15,7 @@ namespace voronoi {
 		Arc* left;
 		Arc* right;
 		Arc(const Arc& other);
-		Arc(const Point* s, Arc* l, Arc* r);
+		Arc(const Point& s, Arc* l, Arc* r);
 		Arc* prev() const;
 		Arc* next() const;
 		void connectLeft(Arc* other);
