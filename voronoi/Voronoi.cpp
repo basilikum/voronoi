@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <unordered_map>
 #include <memory>
 #include <iostream>
 #include "PointSet.h"
@@ -195,7 +196,8 @@ public:
 
 class BeachLine {
 private:
-	vector<unique_ptr<Arc>> arcs;
+	unordered_map<double, unique_ptr<Arc>> arcs;
+	vector<double> keys;
 
 public:
 	BeachLine() : arcs(0) {
